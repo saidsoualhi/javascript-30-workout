@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions instructions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+    <ul class="suggestions data-wrapper">
+    </ul>
+  </form>
+<script>
+const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+var dataArray = [];
+fetch(endpoint).then(blob => blob.json()).then(data => dataArray.push(...data));
+// dataArray = JSON.parse(getData(endpoint));
+const parentElt = document.querySelector(".data-wrapper");
+const instrElt = document.querySelector(".instructions");
+const inputSearch = document.querySelector('.search');
+//====================================================
+function displayMatches(evt) {
+  if (this.value != null && this.value != '') {
+    instrElt.style.display = "none";
+    parentElt.style.display = "block";
+    parentElt.innerHTML = "";
+    var dataFiltered = dataArray.filter(
+      elt => elt.city.toLowerCase().includes(this.value.toLowerCase())
+      || elt.state.toLowerCase().includes(this.value.toLowerCase())
+    );
+    //== alternative solution with regex to filter data
+    // filter(elt => {
+    // const regex = new RegExp(wordToMatch, 'gi');
+    // return place.city.match(regex) || place.state.match(regex)
+    // })
+    for (let elt of dataFiltered) {
+      var node = document.createElement("li");
+      node.setAttribute('class', 'd-inline-b');
+      // ================================
+      var textNodeString = `<span>${elt.state}, ${elt.city}</span><span>${elt.population.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span> `;
+      textNodeString = textNodeString.toLowerCase().replace(this.value.toLowerCase(), `<span class="hl">${this.value.toLowerCase()}</span>`);
+      node.innerHTML = textNodeString;
+      parentElt.appendChild(node);
+    }
+  } else {
+    instrElt.style.display = "block";
+    parentElt.style.display = "none";
+  }
+};
+inputSearch.addEventListener('input', displayMatches);
+</script>
+</body>
+</html>
